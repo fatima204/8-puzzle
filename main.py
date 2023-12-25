@@ -43,6 +43,7 @@ class Node:
                 if self.board[x][y] == "_":
                     return x, y
 
+
 # creates a shuffled initial node
 def initialNode():
     node = Node()
@@ -66,7 +67,8 @@ def solvable(node):
 
     if count % 2 == 0:  # if inversion count is even = solvable
         return True
-    else: return print(not_solvable)
+    else:
+        return print(not_solvable)
 
 
 # prints the board of given node
@@ -98,11 +100,11 @@ if __name__ == '__main__':
     # testing
     initial = initialNode()
     if solvable(initial):
-        printNode(initial)
+        printNode(initial)  # prints shuffled StartNode
 
         directions = ["up", "down", "left", "right"]
-        for direction in directions:
+        for direction in directions:  # loops the print of all childNodes for each possible direction
             child = initial.childNode(direction)
             if child:
                 printNode(child)
-        #hamming(initial)
+        # hamming(initial)
