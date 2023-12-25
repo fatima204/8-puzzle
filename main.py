@@ -9,6 +9,39 @@ class Node:
     h = 0
     f = 0
 
+    def childNode(self, direction):
+        # Copy the current board to create a new node
+        new_board = [row.copy() for row in self.board]
+        # find coordinates of blank space
+        blank_x, blank_y = self.findBlank()
+
+        # Find new coordinates after blank space is swapped
+        if direction == "up" and blank_x > 0:
+            new_x, new_y = blank_x - 1, blank_y
+        elif direction == "down" and blank_x < 2:
+            new_x, new_y = blank_x + 1, blank_y
+        elif direction == "left" and blank_y > 0:
+            new_x, new_y = blank_x, blank_y - 1
+        elif direction == "right" and blank_y < 2:
+            new_x, new_y = blank_x, blank_y + 1
+        else:
+            return None  # Invalid direction
+
+        # Swap the blank space with the tile in the specified direction
+        new_board[blank_x][blank_y], new_board[new_x][new_y] = new_board[new_x][new_y], new_board[blank_x][blank_y]
+
+        # Create a new node with the updated board
+        new_node = Node()
+        new_node.board = new_board
+
+        return new_node
+
+    # returns the blank space of given board
+    def findBlank(self):
+        for x in range(3):
+            for y in range(3):
+                if self.board[x][y] == "_":
+                    return x, y
 
 # creates a shuffled initial node
 def initialNode():
@@ -23,7 +56,7 @@ def initialNode():
 def solvable(node):
     count = 0
     flat = [element for sublist in node.board for element in sublist]
-
+    not_solvable = "Random Puzzle is not solvable - Please try again!"
     for x in range(len(flat) - 1):
         for y in range(x, len(flat)):
             if flat[x] == "_" or flat[y] == "_":
@@ -33,6 +66,7 @@ def solvable(node):
 
     if count % 2 == 0:  # if inversion count is even = solvable
         return True
+    else: return print(not_solvable)
 
 
 # prints the board of given node
@@ -41,14 +75,6 @@ def printNode(node):
         for y in range(3):
             print(node.board[x][y], end=" ")
         print("")
-
-
-# returns the blank space of given board
-def findBlank(node):
-    for x in range(3):
-        for y in range(3):
-            if node.board[x][y] == "_":
-                return x, y
 
 
 # counts the number of misplaced tiles
@@ -73,4 +99,10 @@ if __name__ == '__main__':
     initial = initialNode()
     if solvable(initial):
         printNode(initial)
-        hamming(initial)
+
+        directions = ["up", "down", "left", "right"]
+        for direction in directions:
+            child = initial.childNode(direction)
+            if child:
+                printNode(child)
+        #hamming(initial)
