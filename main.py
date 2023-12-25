@@ -56,7 +56,7 @@ def initialNode():
 def solvable(node):
     count = 0
     flat = [element for sublist in node.board for element in sublist]
-    not_solvable = "Random Puzzle is not solvable - Please try again!"
+    not_solvable = "Random Puzzle is not solvable! - Please try again!"
     for x in range(len(flat) - 1):
         for y in range(x, len(flat)):
             if flat[x] == "_" or flat[y] == "_":
