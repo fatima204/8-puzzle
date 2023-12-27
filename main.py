@@ -100,11 +100,25 @@ if __name__ == '__main__':
     # testing
     initial = initialNode()
     if solvable(initial):
+        print("Start Puzzle")
         printNode(initial)  # prints shuffled StartNode
+        print()
 
         directions = ["up", "down", "left", "right"]
+
         for direction in directions:  # loops the print of all childNodes for each possible direction
             child = initial.childNode(direction)
             if child:
+                print("Possible Child Nodes")
                 printNode(child)
+                childesChild = child
+                print()
+                #Create Children of Childnodes
+                print("ChildesChild")
+                for direction in directions:  # loops the print of all childesChildNodes for each possible direction
+                    childesChild = child.childNode(direction)
+                    if childesChild:
+                        printNode(childesChild)
+                        print()
+
         # hamming(initial)
