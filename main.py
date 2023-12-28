@@ -18,6 +18,14 @@ def initialNode():
     node.board = [flat[i:i + 3] for i in range(0, 9, 3)]  # recompose into nested list
     return node
 
+# for debugging purposes
+# def initialNode():
+#     node = Node()
+#     node.board = [[2, 5, 1],
+#                   [8, 4, 7],
+#                   [6, 3, "_"]]
+#     return node
+
 
 def goalNode():
     node = Node()
@@ -98,9 +106,8 @@ def manhattan(initial):  # calculate how many moves that are needed to move tile
         # calculates total difference of col from initial node to goal node
         col_difference = abs(initial_coordinates[1] - goal_coordinates[1])
 
-        # calculates distance of current tile
-        distance = row_difference + col_difference  # sums up difference of row and col
-        total_distance += distance  # sums up each additional distance when there is are new row and col differences
+        # sums up each additional distance when there is are new row and col differences
+        total_distance += row_difference + col_difference
 
     return total_distance
 
@@ -109,8 +116,8 @@ if __name__ == '__main__':
 
     # testing
     initial = initialNode()
+    goal = goalNode()
     if solvable(initial):
-        goal = goalNode()
         print("Initial Node:")
         printNode(initial)
         print("---------------")
