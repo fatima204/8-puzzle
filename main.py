@@ -61,6 +61,12 @@ def initialNode():
     flat = [element for sublist in node.board for element in sublist]  # flatten nested list using list comprehension
     random.shuffle(flat)  # shuffle the flattened list
     node.board = [flat[i:i + 3] for i in range(0, 9, 3)]  # recompose into nested list
+
+    if node.heuristic == 1:
+        manhattan(node)
+    else:
+        hamming(node)
+
     return node
 
 
