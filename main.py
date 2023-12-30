@@ -10,6 +10,7 @@ class Node:
     h = 0
     f = 0
     heuristic = 1 # 0 = hamming, 1 = manhattan
+    parent = 0
 
 
     def childNode(self, direction):
@@ -33,6 +34,7 @@ class Node:
 
         # create a new node with the updated board
         new_node = Node()
+        new_node.parent = self
         new_node.board = new_board
         new_node.g = copy.deepcopy(self.g) + 1  # copy the parent's g value and increment by 1
         new_node.h = copy.deepcopy(self.heuristic)  # copy parent's heuristic approach
@@ -41,6 +43,9 @@ class Node:
             manhattan(new_node)
         else:
             hamming(new_node)
+
+        if check_loops(new_node) == 0:
+            return 0
 
         return new_node
 
@@ -51,6 +56,23 @@ class Node:
             for y in range(3):
                 if self.board[x][y] == "_":
                     return x, y
+
+
+def compare_boards(node1, node2):
+    for x in range(3):
+        for y in range(3):
+            if node1.board[x][y] != node2.board[x][y]:
+                return 0
+    return 1
+
+
+def check_loops(node):
+    parent_node = node.parent
+    while parent_node != 0:
+        if compare_boards(node, parent_node) == 1:
+            return 0
+        parent_node = parent_node.parent
+    return 1
 
 
 # creates a shuffled initial node
@@ -154,7 +176,7 @@ def createChildren(node):
             child_nodes.append(child)
             #print("child:")
             #printNode(child)
-            #print("f: ", child.f)  # for testing
+            #print("h: ", child.h)  # for testing
             #print()
 
     #child_nodes.sort(key=lambda element: element.f)  # sorts the list of nodes by f value
@@ -169,33 +191,18 @@ def solvePuzzle():
     initial = initialNode()
     node_count = 1  # initial node is first node
     step_count = 0  # total step count
-    all_nodes = []  # list of all nodes to be traversed
+    open_nodes = []  # list of all nodes to be traversed
     visited_nodes = []  # list of already visited nodes
 
     if solvable(initial):
-        all_nodes.append(initial)
+        open_nodes.append(initial)
 
         while True:
-            current_node = all_nodes[0]  # set current node
+            current_node = open_nodes[0]  # set current node
 
             # does not work yet
-            #if current_node in visited_nodes:
-                #continue  # avoid repetition
-
-            if current_node.h == 0:
-                break  # stop loop when heuristic of current node reaches 0
-
-            child_nodes = createChildren(current_node)  # create children of current node
-
-            for node in child_nodes:
-                all_nodes.append(node)  # add every child to list
-                node_count += 1
-
-            visited_nodes.append(current_node.board)  # add current node to visited nodes
-
-            del all_nodes[0]  # delete current node
-            all_nodes.sort(key=lambda element: element.f)  # sorts the list of nodes by f value
-            step_count += 1
+            if current_node in visited_nodes:
+                continue  # avoid repetition
 
             # testing/debugging
             print("step ", step_count, ": ")
@@ -203,6 +210,23 @@ def solvePuzzle():
             printNode(current_node)
             print("-> g: ", current_node.g, " h: ", current_node.h, " f: ", current_node.f)
             print()
+
+            if current_node.h == 0:
+                break  # stop loop when heuristic of current node reaches 0
+
+            child_nodes = createChildren(current_node)  # create children of current node
+
+            for child in child_nodes:
+                open_nodes.append(child)  # add every child to list
+                node_count += 1
+
+            visited_nodes.append(current_node)  # add current node to visited nodes
+
+            del open_nodes[0]  # delete current node
+            open_nodes.sort(key=lambda element: element.f, reverse=False)  # sorts the list of nodes by f value
+            step_count += 1
+
+
 
 
 
