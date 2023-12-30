@@ -9,16 +9,14 @@ class Node:
     g = 0
     h = 0
     f = 0
-    heuristic = 0 # 0 = hamming, 1 = manhattan
+    heuristic = 1 # 0 = hamming, 1 = manhattan
 
 
     def childNode(self, direction):
-        # Copy the current board to create a new node
-        new_board = [row.copy() for row in self.board]
-        # find coordinates of blank space
-        blank_x, blank_y = self.findBlank()
+        new_board = [row.copy() for row in self.board]  # copy the current node board
+        blank_x, blank_y = self.findBlank()  # find coordinates of blank space
 
-        # Find new coordinates after blank space is swapped
+        # find new coordinates after blank space is swapped
         if direction == "up" and blank_x > 0:
             new_x, new_y = blank_x - 1, blank_y
         elif direction == "down" and blank_x < 2:
@@ -28,16 +26,16 @@ class Node:
         elif direction == "right" and blank_y < 2:
             new_x, new_y = blank_x, blank_y + 1
         else:
-            return None  # Invalid direction
+            return None  # invalid direction
 
-        # Swap the blank space with the tile in the specified direction
+        # swap the blank space with the tile in the specified direction
         new_board[blank_x][blank_y], new_board[new_x][new_y] = new_board[new_x][new_y], new_board[blank_x][blank_y]
 
-        # Create a new node with the updated board
+        # create a new node with the updated board
         new_node = Node()
         new_node.board = new_board
-        new_node.g = copy.deepcopy(self.g) + 1  # copies the parent's g value and increments by 1
-        new_node.h = copy.deepcopy(self.heuristic)  # copies parent's heuristic approach
+        new_node.g = copy.deepcopy(self.g) + 1  # copy the parent's g value and increment by 1
+        new_node.h = copy.deepcopy(self.heuristic)  # copy parent's heuristic approach
 
         if new_node.heuristic == 1:
             manhattan(new_node)
@@ -70,11 +68,11 @@ def initialNode():
     return node
 
 
-def goalNode():
+def goal_node():
     node = Node()
-    node.board = [["_", 2, 3],
-                  [4, 5, 6],
-                  [7, 8, 9]]
+    node.board = [["_", 1, 2],
+                  [3, 4, 5],
+                  [6, 7, 8]]
     return node
 
 
@@ -101,10 +99,10 @@ def printNode(node):
     for x in range(3):
         for y in range(3):
             print(node.board[x][y], end=" ")
-        print("")
+        print()
 
 
-def findCoordinates(node, tile):
+def find_coordinates(node, tile):
     for x in range(3):
         for y in range(3):
             if node.board[x][y] == tile:
@@ -113,7 +111,7 @@ def findCoordinates(node, tile):
 
 # counts the number of misplaced tiles
 def hamming(node):
-    goal = goalNode()
+    goal = goal_node()
     ham_distance = 0
 
     for x in range(3):
@@ -127,27 +125,26 @@ def hamming(node):
 
 # calculates how many moves are needed from initial to goal node
 def manhattan(node):
-    goal = goalNode()
+    goal = goal_node()
     man_distance = 0
 
-    for value in range(1, 9):  # for the tiles from 1 to 8
-        initial_coordinates = findCoordinates(initial, value)  # finds coordinates of initial value
-        goal_coordinates = findCoordinates(goal, value)  # finds coordinates of goal value
-        row_difference = abs(initial_coordinates[0] - goal_coordinates[0])  # calculates total difference of row from initial node to goal node
-        col_difference = abs(initial_coordinates[1] - goal_coordinates[1])  # calculates total difference of col from initial node to goal node
+    for value in range(1, 9):
+        initial_coordinates = find_coordinates(node, value)  # finds coordinates of initial value
+        goal_coordinates = find_coordinates(goal, value)  # finds coordinates of goal value
 
-        man_distance += row_difference + col_difference  # sums up difference of row and col
+        # check if find_coordinates returned valid coordinates
+        if initial_coordinates is not None and goal_coordinates is not None:
+            row_difference = abs(initial_coordinates[0] - goal_coordinates[0])  # calculates total difference of row from initial node to goal node
+            col_difference = abs(initial_coordinates[1] - goal_coordinates[1])  # calculates total difference of col from initial node to goal node
+
+            man_distance += row_difference + col_difference  # sums up difference of row and col
 
     node.h = man_distance
     node.f = node.g + node.h
 
 
 # main process
-def solvePuzzle(node):
-    print("Start Puzzle")
-    printNode(initial)  # prints shuffled start node
-    print()
-
+def createChildren(node):
     child_nodes = []
     directions = ["up", "down", "left", "right"]
 
@@ -155,20 +152,61 @@ def solvePuzzle(node):
         child = node.childNode(direction)
         if child:
             child_nodes.append(child)
-            print("child:")
-            printNode(child)
-            print("f: ", child.f)  # for testing
-            print(" ")
+            #print("child:")
+            #printNode(child)
+            #print("f: ", child.f)  # for testing
+            #print()
 
-    child_nodes.sort(key=lambda element: element.f)  # sorts the list of child nodes by f value
+    #child_nodes.sort(key=lambda element: element.f)  # sorts the list of nodes by f value
 
-    for obj in child_nodes:
-        print(obj.f)  # for testing - prints the sorted f values
+    #for obj in child_nodes:
+        #print(obj.f)  # for testing - prints the sorted f values
+
+    return child_nodes
+
+
+def solvePuzzle():
+    initial = initialNode()
+    node_count = 1  # initial node is first node
+    step_count = 0  # total step count
+    all_nodes = []  # list of all nodes to be traversed
+    visited_nodes = []  # list of already visited nodes
+
+    if solvable(initial):
+        all_nodes.append(initial)
+
+        while True:
+            current_node = all_nodes[0]  # set current node
+
+            # does not work yet
+            #if current_node in visited_nodes:
+                #continue  # avoid repetition
+
+            if current_node.h == 0:
+                break  # stop loop when heuristic of current node reaches 0
+
+            child_nodes = createChildren(current_node)  # create children of current node
+
+            for node in child_nodes:
+                all_nodes.append(node)  # add every child to list
+                node_count += 1
+
+            visited_nodes.append(current_node.board)  # add current node to visited nodes
+
+            del all_nodes[0]  # delete current node
+            all_nodes.sort(key=lambda element: element.f)  # sorts the list of nodes by f value
+            step_count += 1
+
+            # testing/debugging
+            print("step ", step_count, ": ")
+            print()
+            printNode(current_node)
+            print("-> g: ", current_node.g, " h: ", current_node.h, " f: ", current_node.f)
+            print()
+
 
 
 if __name__ == '__main__':
 
     # testing
-    initial = initialNode()
-    if solvable(initial):
-        solvePuzzle(initial)
+    solvePuzzle()
