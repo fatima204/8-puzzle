@@ -1,25 +1,25 @@
 import copy
 import random
-import time  # runtime
-import psutil  # memory usage
+import time
+import psutil
 
 
 class Node:
     board = [["_", 1, 2],
              [3, 4, 5],
              [6, 7, 8]]
-    g = 0
-    h = 0
-    f = 0
+    g = 0 # --------------------------------------------------------
+    h = 0  # hamming heuristic
+    f = 0  # overall cost
     heuristic = 1  # 0 = hamming, 1 = manhattan
     parent = 0
 
     # Generates new Child Node
     def child_node(self, direction):
-        new_board = [row.copy() for row in self.board]  # copy the current node board
-        blank_x, blank_y = self.find_blank()  # find coordinates of blank space
+        new_board = [row.copy() for row in self.board]  # new copy of current node board
+        blank_x, blank_y = self.find_blank()  # blank space coordinates
 
-        # find new coordinates after blank space is swapped # in specified direction
+        # New coordinates after blank space is swapped
         if direction == "up" and blank_x > 0:
             new_x, new_y = blank_x - 1, blank_y
         elif direction == "down" and blank_x < 2:
@@ -31,24 +31,24 @@ class Node:
         else:
             return None  # invalid direction
 
-        # swap the blank space with the tile in the specified direction
+        # Swap the blank space with the tile in the specified direction
         new_board[blank_x][blank_y], new_board[new_x][new_y] = new_board[new_x][new_y], new_board[blank_x][blank_y]
 
-        # create a new node with the updated board
+        # Create a new node with the updated board & cost
         new_node = Node()
         new_node.parent = self
         new_node.board = new_board
-        new_node.g = copy.deepcopy(self.g) + 1  # copy the parent's g value and increment by 1
-        new_node.h = copy.deepcopy(self.heuristic)  # copy parent's heuristic approach
+        new_node.g = copy.deepcopy(self.g) + 1
+        new_node.h = copy.deepcopy(self.heuristic)
 
         if new_node.heuristic == 1:
             manhattan(new_node)
         else:
             hamming(new_node)
 
-        # checks if stated already occured
+        # Checks if state already occured
         if check_loops(new_node) == 0:
-            return 0  # same state detected
+            return 0  # same state detected ------------------------------?
 
         return new_node
 
@@ -63,24 +63,24 @@ class Node:
 # Creates a solvable random initial node
 def initial_node():
     solvable = False
-    while not solvable: # if solvable = False
+    while not solvable:
 
-        # create new random node
+        # Create new shuffled board
         node = Node()
         count = 0
-        flat = [element for sublist in node.board for element in sublist]  # flatten nested list using list comprehension
-        random.shuffle(flat)  # shuffle the flattened list
-        node.board = [flat[i:i + 3] for i in range(0, 9, 3)]  # recompose into nested list
+        flat = [element for sublist in node.board for element in sublist]
+        random.shuffle(flat)
+        node.board = [flat[i:i + 3] for i in range(0, 9, 3)]
 
-        # calculate inversion counter of random node
+        # Inversion counter for solvability check
         for x in range(len(flat) - 1):
             for y in range(x, len(flat)):
                 if flat[x] == "_" or flat[y] == "_":
-                    continue  # ignores the blank space
+                    continue  # ignores blank space
                 if flat[x] > flat[y]:
-                        count += 1
+                    count += 1
 
-        if count % 2 == 0:  # if inversion count is even = solvable
+        if count % 2 == 0:
             solvable = True
         else:
             solvable = False
@@ -93,7 +93,6 @@ def initial_node():
         hamming(node)
 
     return node
-
 
 
 # Goal state
@@ -113,8 +112,8 @@ def hamming(node):
         if node.board[x][y] != "_" and node.board[x][y] != goal.board[x][y]:
             ham_distance += 1
 
-    node.h = ham_distance  # saves hamming heuristic of node
-    node.f = node.g + node.h  # updates cost of path
+    node.h = ham_distance
+    node.f = node.g + node.h
 
 
 # Manhatten Distance - calculates how many moves are needed from initial to goal node
@@ -123,54 +122,46 @@ def manhattan(node):
     man_distance = 0
 
     for value in range(1, 9):
-        initial_coordinates = find_coordinates(node, value)  # finds coordinates of initial value
-        goal_coordinates = find_coordinates(goal, value)  # finds coordinates of goal value
+        initial_coordinates = find_coordinates(node, value)
+        goal_coordinates = find_coordinates(goal, value)
 
-        # checks if the funtion find_coordinates returned valid coordinates
         if initial_coordinates is not None and goal_coordinates is not None:
             row_difference = abs(initial_coordinates[0] - goal_coordinates[
-                0])  # calculates total difference of row from initial node to goal node
+                0])  # row difference of initial node and goal node tile
             col_difference = abs(initial_coordinates[1] - goal_coordinates[
-                1])  # calculates total difference of col from initial node to goal node
+                1])  # col difference of initial node and goal node tile
 
-            man_distance += row_difference + col_difference  # sums up difference of row and col
+            man_distance += row_difference + col_difference
 
     node.h = man_distance
     node.f = node.g + node.h
 
-# Creates amount of new child nodes according to possible direction
+
+# Creates amount of new child nodes in regard of possible direction
 def create_children(node):
     child_nodes = []
     directions = ["up", "down", "left", "right"]
 
-    for direction in directions:  # loops the print of all child nodes for each possible direction
+    for direction in directions:  # ? loops the print of all child nodes for each possible direction ---------------------
         child = node.child_node(direction)
         if child:
             child_nodes.append(child)
-            # print("child:")
-            # print_node(child)
-            # print("f: ", child.f)  # for testing
-            # print()
-
-    # child_nodes.sort(key=lambda element: element.f)  # sorts the list of nodes by f value
-
-    # for obj in child_nodes:
-    # print(obj.f)  # for testing - prints the sorted f values
 
     return child_nodes
 
+# Überschriften?---------------------------------------
 # Solves Puzzle from Initial state till Goal state
 def solve_puzzle():
-    initial = initial_node() # random start node
-    node_count = 1  # initial node is first node
-    step_count = 1  # total step count
-    open_nodes = []  # list of all nodes to be traversed
-    visited_nodes = []  # list of already visited nodes
+    initial = initial_node()
+    node_count = 1
+    step_count = 1
+    open_nodes = []  # lists all nodes to be traversed
+    visited_nodes = []
 
     open_nodes.append(initial)
 
     while True:
-        current_node = open_nodes[0]  # set current node for initial
+        current_node = open_nodes[0]
 
         # does not work yet
         if current_node in visited_nodes:
@@ -186,17 +177,18 @@ def solve_puzzle():
         if current_node.h == 0:
             break  # stop loop when heuristic of current node reaches 0
 
-        child_nodes = create_children(current_node)  # create children of current node
+        child_nodes = create_children(current_node)
 
         for child in child_nodes:
-            open_nodes.append(child)  # add every child to list
+            open_nodes.append(child)
             node_count += 1
 
-        visited_nodes.append(current_node)  # add current node to visited nodes
+        visited_nodes.append(current_node)
 
-        del open_nodes[0]  # delete current node
-        open_nodes.sort(key=lambda element: element.f, reverse=False)  # sorts the list of nodes by f value
+        del open_nodes[0]
+        open_nodes.sort(key=lambda element: element.f, reverse=False)
         step_count += 1
+
 
 # Checks for identical boards in check_loops
 def compare_boards(node1, node2):
@@ -205,6 +197,7 @@ def compare_boards(node1, node2):
             if node1.board[x][y] != node2.board[x][y]:
                 return 0
     return 1
+
 
 # Prevent algorithm from revisiting previously encountered states
 def check_loops(node):
@@ -216,13 +209,13 @@ def check_loops(node):
     return 1
 
 
-
 # Prints the board of given node
 def print_node(node):
     for x in range(3):
         for y in range(3):
             print(node.board[x][y], end=" ")
         print()
+
 
 # For calculation of Manhatten Distance
 def find_coordinates(node, tile):
@@ -232,37 +225,31 @@ def find_coordinates(node, tile):
                 return x, y
 
 
-# Number of random states to generate
 random_states = 100
 
 
-# Run A* search for each random state with both heuristics
+# Run A* search for each random state with both heuristics --------------------
 def statistics():
     for _ in range(random_states):
-        # Generate a random 8-puzzle state
-        initial_state = initial_node()
 
-        # Goal state (assuming it's known)
+        initial_state = initial_node()
         goal_state = goal_node()
 
-        # Measure run time
+        # Measure Runtime
         start_time = time.time()
-
-        # Choose Hamming=0 or Manhattan=1 heuristic
-        heuristic = 1
+        heuristic = 1  # Choose Hamming=0 or Manhattan=1 heuristic
         solve_puzzle()
-
         end_time = time.time()
         elapsed_time = end_time - start_time
+
+        # Measure memory usage & print Statistics
         if heuristic == 0:
             print(f"Hamming Heuristic - Run Time: {elapsed_time} seconds")
-            # Measure memory usage
             process = psutil.Process()
             memory_usage = process.memory_info().rss
             print(f"Hamming Heuristic - Memory Usage: {memory_usage} bytes")
         elif heuristic == 1:
             print(f"Manhattan Heuristic - Run Time: {elapsed_time} seconds")
-            # Measure memory usage
             process = psutil.Process()
             memory_usage = process.memory_info().rss
             print(f"Manhattan Heuristic - Memory Usage: {memory_usage} bytes")
@@ -275,4 +262,3 @@ if __name__ == '__main__':
     """
     solve_puzzle()
     # statistics()
-
