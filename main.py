@@ -340,5 +340,5 @@ def calc_statistics():
 
 
 if __name__ == '__main__':
-    # main()
-    calc_statistics()
+    main()
+    # calc_statistics()
