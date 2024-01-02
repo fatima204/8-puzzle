@@ -219,11 +219,13 @@ def solve_puzzle(heuristic_type):
         open_nodes.sort(key=lambda element: element.f, reverse=False)  # sorts the list of nodes by f value
         step_count += 1
 
+    print_path(current_node)
+
     return current_node, node_count, step_count
 
 
 
-def print_path(current_node):
+def print_path(node):
     path = []  # array to store the nodes that leads from initial node to goal node
     while node:
         path.append(node)  # append node to array path
@@ -295,7 +297,7 @@ def calc_statistics():
 
     for _ in range(random_states):
         # Capture the returned values
-        node_count, step_count = solve_puzzle(heuristic_choice)
+        current_node, node_count, step_count = solve_puzzle(heuristic_choice)
 
         # Measure run time
         start_time = time.time()
