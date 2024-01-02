@@ -249,7 +249,7 @@ def choose_heuristic():
 
 # run A* search for each random state with either heuristic - to calculate statistics
 def calc_statistics():
-    random_states = 3  # number of random states to generate
+    random_states = 50  # number of random states to generate
     measure_count = 0  # counter for measurements readability
     runtimes = [] # stores all runtimes for statistic calculations
     memoryusages = [] # stores all memory usages for statistic calculations
@@ -265,12 +265,9 @@ def calc_statistics():
         print("Manhattan Heuristic Statistics")
 
     for _ in range(random_states):
-        # capture the returned values
-        node_count, step_count = solve_puzzle(heuristic_choice)
-
         # measure run time
         start_time = time.time()
-        solve_puzzle(heuristic_choice)
+        node_count, step_count = solve_puzzle(heuristic_choice)  # capture the returned values
         end_time = time.time()
         elapsed_time = end_time - start_time
         runtimes.append(elapsed_time)
