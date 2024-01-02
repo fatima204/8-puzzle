@@ -219,7 +219,24 @@ def solve_puzzle(heuristic_type):
         open_nodes.sort(key=lambda element: element.f, reverse=False)  # sorts the list of nodes by f value
         step_count += 1
 
-    return node_count, step_count
+    return current_node, node_count, step_count
+
+
+
+def print_path(current_node):
+    path = []  # array to store the nodes that leads from initial node to goal node
+    while node:
+        path.append(node)  # append node to array path
+        node = node.parent  # node is the parent of the node
+
+    path.reverse()  # reverse the nodes in the array
+
+    for step, step_node in enumerate(path):
+        print(f"Step {step + 1}:")
+        print_node(step_node)  # prints nodes of path
+        print("-> g: ", step_node.g, " h: ", step_node.h, " f: ", step_node.f)
+        print()
+
 
 # Checks for identical boards in check_loops
 def compare_boards(node1, node2):
