@@ -13,7 +13,7 @@ class Node:
     h = 0  # heuristic value
     f = 0  # overall costs
     heuristic = 0  # 0 = hamming (default), 1 = manhattan
-    parent = 0
+    parent = None
 
 
     # generates new child node
@@ -87,8 +87,8 @@ class Node:
     # prevent algorithm from revisiting previously encountered states (needed for child_node)
     def check_loops(self):
         parent_node = self.parent  # set node to be compared as given node's parent
-        while parent_node != 0:  # while node to be compared has parent
-            if self.compare_boards(parent_node) == 1:  # if both identical, return False
+        while parent_node is not None:  # while node to be compared has parent
+            if self.compare_boards(parent_node) == 1:  # if boards identical, return False
                 return 0
             parent_node = parent_node.parent  # otherwise set checked node's parent as node to be checked next
         return 1  # if nodes not identical, return True
@@ -211,7 +211,7 @@ def solve_puzzle(heuristic_type):
     node_count = 1  # initial node is first node
     step_count = 0  # total step count
     open_nodes = [initial]  # list of all nodes to be traversed, initial node being the first
-    visited_nodes = []
+    visited_nodes = []  # list of already traversed node boards
 
     while True:
         current_node = open_nodes.pop(0)  # removes the node at first position from list and sets it as current node
@@ -233,7 +233,7 @@ def solve_puzzle(heuristic_type):
         open_nodes.sort(key=lambda element: element.f, reverse=False)  # sorts the list of open nodes by f value
         step_count += 1
 
-    current_node.print_path()
+    current_node.print_path()  # print the path from initial node to goal noe
 
     return node_count, step_count
 
