@@ -81,7 +81,7 @@ class Node:
             for y in range(3):
                 if self.board[x][y] != node.board[x][y]:
                     return 0
-        return 1  # if boards not identical, return True
+        return 1  # if boards identical, return True
 
 
     # prevent algorithm from revisiting previously encountered states (needed for child_node)
@@ -211,12 +211,18 @@ def solve_puzzle(heuristic_type):
     node_count = 1  # initial node is first node
     step_count = 0  # total step count
     open_nodes = [initial]  # list of all nodes to be traversed, initial node being the first
+    visited_nodes = []
 
     while True:
-        current_node = open_nodes[0]
+        current_node = open_nodes.pop(0)  # removes the node at first position from list and sets it as current node
+
+        if current_node.board in visited_nodes:
+            continue  # if current board state has been visited before, skip it to avoid loops
 
         if current_node.h == 0:
             break  # stop loop when heuristic of current node reaches 0
+
+        visited_nodes.append(current_node.board)  # add current board state to visited nodes list
 
         child_nodes = current_node.create_children()  # create children of current node
 
@@ -224,8 +230,7 @@ def solve_puzzle(heuristic_type):
             open_nodes.append(child)  # add every child to list
             node_count += 1
 
-        del open_nodes[0]  # delete current node
-        open_nodes.sort(key=lambda element: element.f, reverse=False)  # sorts the list of nodes by f value
+        open_nodes.sort(key=lambda element: element.f, reverse=False)  # sorts the list of open nodes by f value
         step_count += 1
 
     current_node.print_path()
@@ -249,7 +254,7 @@ def choose_heuristic():
 
 # run A* search for each random state with either heuristic - to calculate statistics
 def calc_statistics():
-    random_states = 50  # number of random states to generate
+    random_states = 100  # number of random states to generate
     measure_count = 0  # counter for measurements readability
     runtimes = [] # stores all runtimes for statistic calculations
     memoryusages = [] # stores all memory usages for statistic calculations
